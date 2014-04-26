@@ -5,15 +5,23 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game', {
     render: render
 });
 
-var castle;
-var castleTower;
-var player;
+var castle = {};
+var cloud;
+var player = {
+    moveSpeed: 80,
+    moveDrag: 300,
+    jumpSpeed: 120,
+    jumpDrag: 10,
+    mass: 200,
+};
+
 var background;
 
 function preload() {
     game.load.spritesheet('player', 'assets/knight.png', 16, 16);
     game.load.image('castle', 'assets/castle.png');
     game.load.image('castle_tower', 'assets/castle_tower.png');
+    game.load.image('cloud', 'assets/cloud.png');
 }
 
 function create() {
@@ -23,7 +31,7 @@ function create() {
     
     // setup physics
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.physics.arcade.gravity.y = 100;
+    game.physics.arcade.gravity.y = 300;
     
     // background helper
     var backgroundSprite = function(x, y, width, height, color) {
@@ -44,31 +52,42 @@ function create() {
     var underground = backgroundSprite(0, 2, 800, 10000, 0xFF7C614F);
     
     // create player
-    player = game.add.group();
-    player.sprite = game.add.sprite(50, -450, 'player', 0, player);
+    player.group = game.add.group();
+    player.sprite = game.add.sprite(70, -450, 'player', 0, player.group);
     player.sprite.scale = new Phaser.Point(2, 2);
+    player.sprite.anchor.set(0.33, 1);
     player.sprite.animations.add('idle', [0, 1], 2, true);
     player.sprite.animations.add('walk', [2, 3], 10, true);
+    player.sprite.animations.add('fly', [4, 5], 15, true);
     player.sprite.animations.play('idle');
     game.physics.enable(player.sprite, Phaser.Physics.ARCADE);
+    player.sprite.body.setSize(6, 16, -2, 0);
+    player.sprite.body.drag.set(player.moveDrag, player.jumpDrag);
+    player.sprite.body.mass = player.mass;
     
     // create castle
-    castleTower = game.add.sprite(0, -400, 'castle_tower');
-    castleTower.anchor.y = 1;
-    game.physics.enable(castleTower, Phaser.Physics.ARCADE);
-    castleTower.body.moves = false;
-    castleTower.body.immovable = true;
-    castleTower.scale = new Phaser.Point(4, 4);
-    castleTower.body.setSize(11, 21, 0, 0);
+    castle.group = game.add.group();
+    castle.tower = game.add.sprite(0, -400, 'castle_tower', 0, castle.group);
+    castle.tower.anchor.y = 1;
+    game.physics.enable(castle.tower, Phaser.Physics.ARCADE);
+    castle.tower.body.moves = false;
+    castle.tower.body.immovable = true;
+    castle.tower.scale = new Phaser.Point(4, 4);
+    castle.tower.body.setSize(11, 21, 0, 0);
     
-    castle = game.add.sprite(0, 0, 'castle');
-    castle.anchor.y = 1;
-    game.physics.enable(castle, Phaser.Physics.ARCADE);
-    castle.body.moves = false;
-    castle.body.immovable = true;
-    castle.scale = new Phaser.Point(4, 4);
-    castle.body.setSize(43, 104, 0, 12);
+    castle.main = game.add.sprite(0, 0, 'castle', 0, castle.group);
+    castle.main.anchor.y = 1;
+    game.physics.enable(castle.main, Phaser.Physics.ARCADE);
+    castle.main.body.moves = false;
+    castle.main.body.immovable = true;
+    castle.main.scale = new Phaser.Point(4, 4);
+    castle.main.body.setSize(43, 104, 0, 12);
     
+    // create cloud
+    cloud = game.add.sprite(500, -500, 'cloud');
+    cloud.alpha = 0.9;
+    cloud.scale = new Phaser.Point(4, 4);
+    game.add.tween(cloud).to( { y: -508 }, 2000, Phaser.Easing.Exponential.None, true, 0, Number.MAX_VALUE, true);
     
     // setup stage
     game.stage.smoothed = false;
@@ -85,11 +104,38 @@ function update() {
     game.camera.x = 0;
     
     // collide player
-    game.physics.arcade.collide(player, castle);
+    game.physics.arcade.collide(player.group, castle.group);
+    
+    controls();
+    animation();
+}
+
+function controls() {
+    var cursors = game.input.keyboard.createCursorKeys();
+    if (cursors.left.isDown) {
+        player.sprite.body.velocity.x = -player.moveSpeed;
+        player.sprite.scale.x = -2;
+    }
+    else if (cursors.right.isDown) {
+        player.sprite.body.velocity.x = player.moveSpeed;
+        player.sprite.scale.x = 2;
+    }
+    
+    if (cursors.up.isDown && player.sprite.body.touching.down) {
+        player.sprite.body.velocity.y -= player.jumpSpeed;
+    }
+}
+
+function animation() {
+    if (Math.abs(player.sprite.body.velocity.x) > 5 && player.sprite.body.touching.down)
+        player.sprite.animations.play('walk');
+    else if (player.sprite.body.touching.none)
+        player.sprite.animations.play('fly');
+    else if (player.sprite.body.touching.down)
+        player.sprite.animations.play('idle');
 }
 
 function render() {
-    game.debug.cameraInfo(game.camera, 32, 32);
-    game.debug.spriteInfo(player.sprite, 32, 128);
-    game.debug.body(player);
+    //game.debug.body(player.sprite);
+    game.debug.bodyInfo(player.sprite, 32, 32);
 }
