@@ -5,6 +5,8 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game', {
     render: render
 });
 
+var background = {};
+var ground = {};
 var castle = {};
 var cloud;
 var player = {
@@ -15,13 +17,16 @@ var player = {
     mass: 200,
 };
 
-var background;
+
 
 function preload() {
     game.load.spritesheet('player', 'assets/knight.png', 16, 16);
     game.load.image('castle', 'assets/castle.png');
     game.load.image('castle_tower', 'assets/castle_tower.png');
     game.load.image('cloud', 'assets/cloud.png');
+    game.load.image('ground', 'assets/ground.png');
+    game.load.image('hole', 'assets/hole.png');
+    game.load.image('hell_sign', 'assets/hell_sign.png');
 }
 
 function create() {
@@ -39,17 +44,31 @@ function create() {
         data.context.fillStyle = Phaser.Color.getWebRGB(color);
         data.context.fillRect(0, 0, 1, 1);
         
-        var sprite = game.add.sprite(x, y, data, 0, background);
+        var sprite = game.add.sprite(x, y, data, 0, background.group);
         sprite.scale.x = width;
         sprite.scale.y = height;
         return sprite;
     }
     
     // create background group
-    background = game.add.group();
-    var sky = backgroundSprite(0, -1000, 800, 1000, 0xFFB5E0FF);
-    var ground = backgroundSprite(0, 0, 800, 2, 0xFF1E1A17);
-    var underground = backgroundSprite(0, 2, 800, 10000, 0xFF7C614F);
+    background.group = game.add.group();
+    background.sky = backgroundSprite(0, -1000, 800, 1000, 0xFFB5E0FF);
+    background.underground = backgroundSprite(0, 0, 800, 10000, 0xFF7C614F);
+    
+    // create ground
+    ground.group = game.add.group();
+    ground.sign = game.add.sprite(590, 5, 'hell_sign', 0, ground.group);
+    ground.sign.anchor.set(0.5, 1);
+    ground.sign.scale.set(2);
+    
+    ground.ground = game.add.sprite(0, 0, 'ground', 0, ground.group);
+    ground.ground.scale.set(600, 4);
+    game.physics.enable(ground.ground, Phaser.Physics.ARCADE);
+    ground.ground.body.immovable = true;
+    ground.ground.body.moves = false;
+    
+    ground.hole = game.add.sprite(600, 0, 'hole', 0, ground.group);
+    ground.hole.scale.set(4);
     
     // create player
     player.group = game.add.group();
@@ -57,7 +76,7 @@ function create() {
     player.sprite.scale = new Phaser.Point(2, 2);
     player.sprite.anchor.set(0.33, 1);
     player.sprite.animations.add('idle', [0, 1], 2, true);
-    player.sprite.animations.add('walk', [2, 3], 10, true);
+    player.sprite.animations.add('walk', [2, 3], 8, true);
     player.sprite.animations.add('fly', [4, 5], 15, true);
     player.sprite.animations.play('idle');
     game.physics.enable(player.sprite, Phaser.Physics.ARCADE);
@@ -105,6 +124,7 @@ function update() {
     
     // collide player
     game.physics.arcade.collide(player.group, castle.group);
+    game.physics.arcade.collide(player.group, ground.ground);
     
     controls();
     animation();
@@ -136,6 +156,4 @@ function animation() {
 }
 
 function render() {
-    //game.debug.body(player.sprite);
-    game.debug.bodyInfo(player.sprite, 32, 32);
 }
