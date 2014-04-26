@@ -12,7 +12,7 @@ var player = {
         // create player
         player.group = game.add.group();
         player.sprite = game.add.sprite(10, -410, 'player', 0, player.group);
-        player.sprite.scale = new Phaser.Point(2, 2);
+        player.sprite.scale.set(2);
         player.sprite.anchor.set(0.33, 1);
         player.sprite.animations.add('idle', [0, 1], 1.2, true);
         player.sprite.animations.add('walk', [2, 3], 8, true);
@@ -25,6 +25,7 @@ var player = {
         player.sprite.body.setSize(6, 16, -2, 0);
         player.sprite.body.drag.set(300, 10);
         player.sprite.body.mass = 200;
+        player.sprite.body.collideWorldBounds = true;
         
         // update
         player.sprite.update = function() {
@@ -62,5 +63,9 @@ var player = {
 
             
         }
-    }
+    },
+    
+    render: function() {
+        game.debug.body(player.sprite);
+    },
 };

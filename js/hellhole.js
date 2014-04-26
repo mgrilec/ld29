@@ -38,6 +38,7 @@ function create() {
     
     // setup physics
     game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.physics.setBoundsToWorld();
     game.physics.arcade.gravity.y = 300;
     
     // create background
@@ -96,4 +97,6 @@ function update() {
 }
 
 function render() {
+    enemies.render();
+    player.render();
 }
