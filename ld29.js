@@ -20,6 +20,8 @@ var player = {
 
 
 function preload() {
+    game.load.bitmapFont('visitor10', 'assets/visitor10.png', 'assets/visitor10.fnt');
+    game.load.bitmapFont('visitor32', 'assets/visitor32.png', 'assets/visitor32.fnt');
     game.load.spritesheet('player', 'assets/knight.png', 16, 16);
     game.load.image('castle', 'assets/castle.png');
     game.load.image('castle_tower', 'assets/castle_tower.png');
@@ -54,6 +56,7 @@ function create() {
     background.group = game.add.group();
     background.sky = backgroundSprite(0, -1000, 800, 1000, 0xFFB5E0FF);
     background.underground = backgroundSprite(0, 0, 800, 10000, 0xFF7C614F);
+    background.introText = game.add.bitmapText(380, -500, 'visitor32', 'Hellhole', 64, background.group);
     
     // create ground
     ground.group = game.add.group();
@@ -103,10 +106,10 @@ function create() {
     castle.main.body.setSize(43, 104, 0, 12);
     
     // create cloud
-    cloud = game.add.sprite(500, -500, 'cloud');
+    cloud = game.add.sprite(260, -500, 'cloud');
     cloud.alpha = 0.9;
     cloud.scale = new Phaser.Point(4, 4);
-    game.add.tween(cloud).to( { y: -508 }, 2000, Phaser.Easing.Exponential.None, true, 0, Number.MAX_VALUE, true);
+    game.add.tween(cloud).to( { y: -504 }, 2000, Phaser.Easing.Exponential.None, true, 0, Number.MAX_VALUE, true);
     
     // setup stage
     game.stage.smoothed = false;
