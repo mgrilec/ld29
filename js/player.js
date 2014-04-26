@@ -1,6 +1,8 @@
 var player = {
     moveSpeed: 80,
     jumpSpeed: 120,
+    lastAttack: 0,
+    attackCooldown: 0.5,
     
     preload: function() {
         // player
@@ -17,15 +19,38 @@ var player = {
         player.sprite.animations.add('idle', [0, 1], 1.2, true);
         player.sprite.animations.add('walk', [2, 3], 8, true);
         player.sprite.animations.add('fly', [4, 5], 15, true);
+        player.sprite.animations.add('attack', [6, 7], 30, true);
         player.sprite.animations.play('idle');
         
         // physics
         game.physics.enable(player.sprite, Phaser.Physics.ARCADE);
         player.sprite.body.velocity.x = 180;
-        player.sprite.body.setSize(6, 16, -2, 0);
+        player.sprite.body.setSize(6, 16, 0, 0);
         player.sprite.body.drag.set(300, 10);
         player.sprite.body.mass = 200;
         player.sprite.body.collideWorldBounds = true;
+        
+        player.sprite.attack = function() {
+            
+            // check cooldown
+            var elapsed = game.time.totalElapsedSeconds() - player.lastAttack;
+            if (elapsed < player.attackCooldown) {
+                return;
+            }
+            
+            player.inAttack = true;
+            player.lastAttack = game.time.totalElapsedSeconds();
+            player.sprite.animations.play('attack');
+            setTimeout(function() { player.inAttack = false; }, 100);
+            
+            
+            // find closest enemy
+            var closest;
+            enemies.group.forEach(function(enemy) {
+                var toEnemy = new Phaser.Point(enemy.x - player.sprite.x, enemy.y - player.sprite.y);
+                enemy.damage(10);
+            });
+        }
         
         // update
         player.sprite.update = function() {
@@ -49,17 +74,21 @@ var player = {
                 player.sprite.body.velocity.x = player.moveSpeed;
                 player.sprite.scale.x = 2;
             }
+            
+            if (game.input.keyboard.justPressed(Phaser.Keyboard.SPACEBAR)) {
+                player.sprite.attack();
+            }
 
             if (cursors.up.isDown && player.sprite.body.touching.down) {
                 player.sprite.body.velocity.y -= player.jumpSpeed;
             }
-
+            
             // animation
-            if (Math.abs(player.sprite.body.velocity.x) > 5 && player.sprite.body.touching.down)
+            if (Math.abs(player.sprite.body.velocity.x) > 5 && player.sprite.body.touching.down && !player.inAttack)
                 player.sprite.animations.play('walk');
-            else if (player.sprite.body.touching.none)
+            else if (player.sprite.body.touching.none && !player.inAttack)
                 player.sprite.animations.play('fly');
-            else if (player.sprite.body.touching.down)
+            else if (player.sprite.body.touching.down && !player.inAttack)
                 player.sprite.animations.play('idle');
 
             
@@ -68,12 +97,12 @@ var player = {
         player.sprite.onEnemyCollision = function(p, e) {
             var angle = game.physics.arcade.angleBetween(p, e);
             player.sprite.body.velocity.x = -Math.cos(angle) * 150;
-            player.sprite.body.velocity.y = -Math.sin(angle) * 150;
+            player.sprite.body.velocity.y = -Math.sin(angle) * 100;
         };
         
     },
     
     render: function() {
-        game.debug.text(map.levels.getLevel(player.sprite.y), 16, 16);
+        
     },
 };

@@ -26,6 +26,8 @@ function preload() {
     game.load.spritesheet('hell_sign', 'assets/hell_sign.png', 24, 32);
     game.load.image('rain', 'assets/rain.png');
     
+    game.load.image('healtbar', 'assets/healthbar.png');
+    
     player.preload();
     
     enemies.preload();

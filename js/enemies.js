@@ -1,6 +1,5 @@
 var enemies = {
     group: null,
-    startingImp: null,
     
     preload: function() {
         
@@ -15,10 +14,22 @@ var enemies = {
         
         map.onPlayerEnterLevel.push(function(i) {
             setTimeout(function() {
-                enemies.startingImp = enemies.imp(750, 100);
-                enemies.startingImp.body.velocity.x = -370;
-                enemies.startingImp.body.velocity.y = -350;
+                var imp = enemies.imp(750, 100);
+                imp.body.velocity.x = -370;
+                imp.body.velocity.y = -350;
+            }, 300);
+            
+            setTimeout(function() {
+                var imp = enemies.imp(750, 100);
+                imp.body.velocity.x = -370;
+                imp.body.velocity.y = -350;
             }, 500);
+            
+            setTimeout(function() {
+                var imp = enemies.imp(750, 100);
+                imp.body.velocity.x = -370;
+                imp.body.velocity.y = -350;
+            }, 600);
         });
     },
     
@@ -27,8 +38,7 @@ var enemies = {
     },
     
     render: function() {
-        if (enemies.startingImp)
-            game.debug.body(enemies.startingImp);
+        
     },
     
     bull: function(x, y) {
@@ -40,22 +50,47 @@ var enemies = {
         sprite.anchor.set(0.5, 1);
         sprite.scale.set(2);
         
+        // animations
+        sprite.animations.add('idle', [0, 1], 0.5);
+        sprite.animations.add('walk', [2, 3], 10);
+        sprite.animations.play('idle');
+        
+        // physics
         game.physics.enable(sprite, Phaser.Physics.ARCADE);
         sprite.body.collideWorldBounds = true;
         sprite.body.drag.set(300, 10);
         sprite.body.mass = 50;
-        sprite.body.setSize(6, 12, 3, 0);
+        sprite.body.setSize(5, 10, 0, 0);
+        
+        // healthbar
+        sprite.health = sprite.maxHealth = 50;
+        sprite.healthbar = game.add.sprite(x, y - 20, 'healtbar');
+        sprite.healthbar.anchor.set(0.5, 1);
+        sprite.healthbar.scale.set(2);
         
         sprite.update = function() {
             // move
-            if (player.sprite.x < sprite.x && sprite.body.touching.down) {
+            if (player.sprite.x < sprite.x - 5) {
                 sprite.scale.x = -2;   
-                sprite.body.velocity.x = -60;
+                if (sprite.body.touching.down)
+                    sprite.body.velocity.x = -70;
             }
-            else if (player.sprite.x > sprite.x && sprite.body.touching.down) {
+            else if (player.sprite.x > sprite.x + 5) {
                 sprite.scale.x = 2;
-                sprite.body.velocity.x = 60;
+                if (sprite.body.touching.down)
+                    sprite.body.velocity.x = 70;
             }
+            
+            // healthbar
+            sprite.healthbar.x = sprite.x;
+            sprite.healthbar.y = sprite.y - 20;
+            sprite.healthbar.scale.x = (sprite.health / sprite.maxHealth) * 2;
+            
+            // animation
+            if (Math.abs(sprite.body.velocity.x) > 5 && sprite.body.touching.down)
+                sprite.animations.play('walk');
+            else if (sprite.body.touching.down)
+                sprite.animations.play('idle');
         }
         
         return sprite;
