@@ -13,14 +13,32 @@ var map = {
             
             y-=map.levels.startingHeight;
             return Math.floor(y / map.levels.height);
-        }
+        },
+        
+        
     },
-    
+        
     preload: function() {
     
     },
     
     create: function() {
+        map.grounds = game.add.group();
+        map.holes = game.add.group();
+        
+        for (var i = 1; i < 49; i++) {
+            var x = i % 2 == 0 ? 0 : 100;
+            var ground = game.add.sprite(x, map.levels.getHeight(i), 'ground', 0, map.grounds);
+            ground.scale.set(700, 4);
+            game.physics.enable(ground, Phaser.Physics.ARCADE);
+            ground.body.moves = false;
+            ground.body.immovable = true;
+            
+            var hole = game.add.sprite(i % 2 == 0 ? 700 : 100, ground.y, 'hole', 0, map.holes);
+            hole.scale.set(i % 2 == 0 ? 2 : -2 , 4);
+            
+        };
+            
         
     },
     
@@ -36,6 +54,7 @@ var map = {
     },
     
     render: function() {
+        
         
     },
     

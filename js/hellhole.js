@@ -61,7 +61,7 @@ function create() {
     ground.ground.body.moves = false;
     
     ground.hole = game.add.sprite(600, 0, 'hole', 0, ground.group);
-    ground.hole.scale.set(4);
+    ground.hole.scale.set(2, 4);
     
     // create player
     player.create();
@@ -87,6 +87,9 @@ function create() {
     castle.main.scale = new Phaser.Point(4, 4);
     castle.main.body.setSize(43, 104, 0, 12);
     
+    // create map
+    map.create();
+    
     // setup stage
     game.stage.smoothed = false;
     game.stage.backgroundColor = '#FFFFFF';
@@ -101,6 +104,7 @@ function update() {
 }
 
 function render() {
+    map.render();
     enemies.render();
     player.render();
 }

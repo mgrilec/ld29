@@ -13,28 +13,27 @@ var enemies = {
         
         
         map.onPlayerEnterLevel.push(function(i) {
-            setTimeout(function() {
-                var imp = enemies.imp(750, 100);
-                imp.body.velocity.x = -370;
-                imp.body.velocity.y = -350;
-            }, 300);
+            var x = i % 2 == 0 ? 750 : 50;
+            var y = map.levels.getHeight(i) - 50;
+            var vx = i % 2 == 0 ? -370 : 370;
             
-            setTimeout(function() {
-                var imp = enemies.imp(750, 100);
-                imp.body.velocity.x = -370;
-                imp.body.velocity.y = -350;
-            }, 500);
+            var imp = enemies.imp(x, y);
+            imp.body.velocity.x = vx;
+            imp.body.velocity.y = -30;
             
-            setTimeout(function() {
-                var imp = enemies.imp(750, 100);
-                imp.body.velocity.x = -370;
-                imp.body.velocity.y = -350;
-            }, 600);
+            imp = enemies.imp(x, y);
+            imp.body.velocity.x = vx - 5;
+            imp.body.velocity.y = -25;
+            
+            imp = enemies.imp(x, y);
+            imp.body.velocity.x = vx + 5;
+            imp.body.velocity.y = -35;
         });
     },
     
     update: function() {
         game.physics.arcade.collide(enemies.group, ground.ground);
+        game.physics.arcade.collide(enemies.group, map.grounds);
     },
     
     render: function() {
@@ -53,6 +52,7 @@ var enemies = {
         // animations
         sprite.animations.add('idle', [0, 1], 0.5);
         sprite.animations.add('walk', [2, 3], 10);
+        sprite.animations.add('die', [4, 5, 6], 10);
         sprite.animations.play('idle');
         
         // physics
@@ -68,14 +68,21 @@ var enemies = {
         sprite.healthbar.anchor.set(0.5, 1);
         sprite.healthbar.scale.set(2);
         
+        sprite.stunned = false;
+        sprite.dying = false;
+        
         sprite.update = function() {
+            if (sprite.dying) {
+                return;
+            }
+                
             // move
-            if (player.sprite.x < sprite.x - 5) {
+            if (player.sprite.x < sprite.x - 5 && !sprite.stunned) {
                 sprite.scale.x = -2;   
                 if (sprite.body.touching.down)
                     sprite.body.velocity.x = -70;
             }
-            else if (player.sprite.x > sprite.x + 5) {
+            else if (player.sprite.x > sprite.x + 5 && !sprite.stunned) {
                 sprite.scale.x = 2;
                 if (sprite.body.touching.down)
                     sprite.body.velocity.x = 70;
@@ -92,6 +99,23 @@ var enemies = {
             else if (sprite.body.touching.down)
                 sprite.animations.play('idle');
         }
+        
+        sprite.hit = function() {
+            sprite.stunned = true;
+            setTimeout(function() { sprite.stunned = false; }, 300);
+        }
+        
+        sprite.events.onKilled.add(function() {
+            if (sprite.dying)
+                return;
+            
+            sprite.alive = true;
+            sprite.exists = true;
+            sprite.visible = true;
+            sprite.dying = true;
+            sprite.healthbar.kill();
+            sprite.animations.play('die', 10, false, true);
+        });
         
         return sprite;
     }
