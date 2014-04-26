@@ -9,14 +9,6 @@ var background = {};
 var ground = {};
 var castle = {};
 var cloud;
-var player = {
-    moveSpeed: 80,
-    moveDrag: 300,
-    jumpSpeed: 120,
-    jumpDrag: 10,
-    mass: 200,
-};
-
 
 
 function preload() {
@@ -29,6 +21,9 @@ function preload() {
     game.load.image('ground', 'assets/ground.png');
     game.load.image('hole', 'assets/hole.png');
     game.load.image('hell_sign', 'assets/hell_sign.png');
+    
+    // enemies
+    game.load.spritesheet('bull', 'assets/bull.png', 16, 16);
 }
 
 function create() {
@@ -55,8 +50,10 @@ function create() {
     // create background group
     background.group = game.add.group();
     background.sky = backgroundSprite(0, -1000, 800, 1000, 0xFFB5E0FF);
-    background.underground = backgroundSprite(0, 0, 800, 10000, 0xFF7C614F);
+    background.underground = backgroundSprite(0, 0, 800, 500, 0xFF7C614F);
+    background.hell = backgroundSprite(0, 500, 800, 3000, 0xFF823939);
     background.introText = game.add.bitmapText(380, -500, 'visitor32', 'Hellhole', 64, background.group);
+    background.creditText = game.add.bitmapText(520, -450, 'visitor10', 'by Mihael Grilec', 20, background.group);
     
     // create ground
     ground.group = game.add.group();
@@ -74,18 +71,10 @@ function create() {
     ground.hole.scale.set(4);
     
     // create player
-    player.group = game.add.group();
-    player.sprite = game.add.sprite(70, -450, 'player', 0, player.group);
-    player.sprite.scale = new Phaser.Point(2, 2);
-    player.sprite.anchor.set(0.33, 1);
-    player.sprite.animations.add('idle', [0, 1], 2, true);
-    player.sprite.animations.add('walk', [2, 3], 8, true);
-    player.sprite.animations.add('fly', [4, 5], 15, true);
-    player.sprite.animations.play('idle');
-    game.physics.enable(player.sprite, Phaser.Physics.ARCADE);
-    player.sprite.body.setSize(6, 16, -2, 0);
-    player.sprite.body.drag.set(player.moveDrag, player.jumpDrag);
-    player.sprite.body.mass = player.mass;
+    player.create();
+    
+    // create enemies
+    enemies.create();
     
     // create castle
     castle.group = game.add.group();
