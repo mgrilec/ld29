@@ -94,6 +94,8 @@ function create() {
 }
 
 function update() {
+    map.update();
+    enemies.update();
 }
 
 function render() {

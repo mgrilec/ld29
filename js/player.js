@@ -37,6 +37,7 @@ var player = {
             // collision
             game.physics.arcade.collide(player.group, castle.group);
             game.physics.arcade.collide(player.group, ground.ground);
+            game.physics.arcade.collide(player.group, enemies.group, player.sprite.onEnemyCollision);
             
             // controls
             var cursors = game.input.keyboard.createCursorKeys();
@@ -62,10 +63,17 @@ var player = {
                 player.sprite.animations.play('idle');
 
             
-        }
+        };
+            
+        player.sprite.onEnemyCollision = function(p, e) {
+            var angle = game.physics.arcade.angleBetween(p, e);
+            player.sprite.body.velocity.x = -Math.cos(angle) * 150;
+            player.sprite.body.velocity.y = -Math.sin(angle) * 150;
+        };
+        
     },
     
     render: function() {
-        game.debug.body(player.sprite);
+        game.debug.text(map.levels.getLevel(player.sprite.y), 16, 16);
     },
 };

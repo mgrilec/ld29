@@ -12,13 +12,23 @@ var enemies = {
     create: function() {
         enemies.group = game.add.group();
         
-        enemies.startingImp = enemies.imp(750, 100);
-        enemies.startingImp.body.velocity.x = -370;
-        enemies.startingImp.body.velocity.y = -350;
+        
+        map.onPlayerEnterLevel.push(function(i) {
+            setTimeout(function() {
+                enemies.startingImp = enemies.imp(750, 100);
+                enemies.startingImp.body.velocity.x = -370;
+                enemies.startingImp.body.velocity.y = -350;
+            }, 500);
+        });
+    },
+    
+    update: function() {
+        game.physics.arcade.collide(enemies.group, ground.ground);
     },
     
     render: function() {
-        game.debug.body(enemies.startingImp);
+        if (enemies.startingImp)
+            game.debug.body(enemies.startingImp);
     },
     
     bull: function(x, y) {
@@ -34,12 +44,18 @@ var enemies = {
         sprite.body.collideWorldBounds = true;
         sprite.body.drag.set(300, 10);
         sprite.body.mass = 50;
+        sprite.body.setSize(6, 12, 3, 0);
         
         sprite.update = function() {
-            
-            // collision
-            game.physics.arcade.collide(sprite, ground.ground);
-            game.physics.arcade.collide(sprite, player.group);
+            // move
+            if (player.sprite.x < sprite.x && sprite.body.touching.down) {
+                sprite.scale.x = -2;   
+                sprite.body.velocity.x = -60;
+            }
+            else if (player.sprite.x > sprite.x && sprite.body.touching.down) {
+                sprite.scale.x = 2;
+                sprite.body.velocity.x = 60;
+            }
         }
         
         return sprite;
