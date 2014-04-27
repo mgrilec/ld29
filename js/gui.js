@@ -19,6 +19,20 @@ var gui = {
             gui.health.update = function() {
                 gui.health.text = "HP: " + player.sprite.health + "/" + player.maxHealth;
             };
+        
+            gui.breath = game.add.sprite(760, 45, 'breath');
+            gui.breath.fixedToCamera = true;
+            gui.breath.update = function() {
+                var elapsed = game.time.totalElapsedSeconds() - player.breath.last;
+                gui.breath.visible = elapsed > player.breath.cooldown
+            };
+        
+            gui.force = game.add.sprite(720, 45, 'force');
+            gui.force.fixedToCamera = true;
+            gui.force.update = function() {
+                var elapsed = game.time.totalElapsedSeconds() - player.force.last;
+                gui.force.visible = elapsed > player.force.cooldown
+            };
     },
     
     update: function() {

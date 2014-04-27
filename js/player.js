@@ -3,7 +3,7 @@ var player = {
     extraSpeed: 80,
     jumpSpeed: 140,
     stunned: false,
-    block: 0.15,
+    block: 0.25,
     
     audio: {},
     attack: {
@@ -16,15 +16,23 @@ var player = {
     
     breath: {
         last: 0,
-        cooldown: 2,
-        range: 120,
+        cooldown: 3,
+        range: 140,
         damage: 15,
+    },
+    
+    force: {
+        last: 0,
+        cooldown: 5,
+        range: 300,
+        damage: 5,
     },
     
     preload: function() {
         // player
         game.load.spritesheet('player', 'assets/knight.png', 16, 16);
-        game.load.image('breath', 'assets/breath.png', 32, 32);
+        game.load.image('breath', 'assets/breath.png');
+        game.load.image('force', 'assets/force.png');
     },
     
     create: function() {
@@ -49,7 +57,7 @@ var player = {
         player.sprite.body.collideWorldBounds = true;
         
         // healthbar
-        player.maxHealth = player.sprite.health = 100;
+        player.maxHealth = player.sprite.health = 150;
         
         player.audio.hit = game.add.audio('hit2', 0.3, false);
         player.audio.jump = game.add.audio('jump', 0.2, false);
@@ -107,7 +115,7 @@ var player = {
             breath.scale.x = -player.sprite.scale.x * 2;
             breath.scale.y = player.sprite.scale.y * 2;
             breath.update = function() {
-                breath.alpha -= 0.05;
+                breath.alpha -= 0.01;
                 if (breath.alpha < 0)
                     breath.kill();
             };
@@ -128,6 +136,45 @@ var player = {
                 }
             });
         };
+        
+        player.sprite.force = function() {
+            
+            // check cooldown
+            var elapsed = game.time.totalElapsedSeconds() - player.force.last;
+            if (elapsed < player.force.cooldown) {
+                return;
+            }
+            
+            player.force.last = game.time.totalElapsedSeconds();
+            
+            // spawn force
+            var force = game.add.sprite(player.sprite.x, player.sprite.y - 16, 'force');
+            force.anchor.set(0.5, 0.5);
+            force.scale.set(8, 8);
+            force.update = function() {
+                force.alpha -= 0.005;
+                if (force.alpha < 0)
+                    force.kill();
+            };
+            
+            // hit enemies in range
+            enemies.group.forEach(function(enemy) {
+                if (!enemy.alive)
+                    return;
+                
+                var angle = game.physics.arcade.angleBetween(player.sprite, enemy);
+                if (game.physics.arcade.distanceBetween(player.sprite, enemy) < player.force.range) {
+                    // push enemy
+                    enemy.body.velocity.x = Math.cos(angle) * 1000;
+                    enemy.body.velocity.y = Math.sin(angle) * 600;
+                    
+                    // hit enemy
+                    enemy.damage(player.force.damage);
+                    enemy.hit();
+                }
+                    
+            });
+        }
         
         // update
         player.sprite.update = function() {
@@ -166,6 +213,10 @@ var player = {
             
             if (game.input.keyboard.justPressed(Phaser.Keyboard.W)) {
                 player.sprite.breath();
+            }
+            
+            if (game.input.keyboard.justPressed(Phaser.Keyboard.E)) {
+                player.sprite.force();
             }
             
             // animation

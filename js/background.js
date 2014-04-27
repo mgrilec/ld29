@@ -16,14 +16,13 @@ var background = {
         // create background
         background.group = game.add.group();
         background.sky = backgroundSprite(0, -1000, game.world.width, 1000, 0xFFB5E0FF);
-        background.underground = backgroundSprite(0, 0, game.world.width, 500, 0xFF7C614F);
-        background.hell = backgroundSprite(0, 500, game.world.width, 5000, 0xFF823939);
+        background.underground = backgroundSprite(0, 0, game.world.width, 10000, 0xFF404040);
         background.introText = game.add.bitmapText(380, -500, 'visitor32', 'Hellhole', 64, background.group);
         background.creditText = game.add.bitmapText(520, -450, 'visitor10', 'by Mihael Grilec', 20, background.group);
         
         background.tutorialText = []
         background.tutorialText[0] = game.add.bitmapText(60, -460, 'visitor16', 'arrow left\narrow right\narrow up', 16, background.group);
-        background.tutorialText[1] = game.add.bitmapText(500, -100, 'visitor16', 'attack - Q', 16, background.group);
+        background.tutorialText[1] = game.add.bitmapText(400, -100, 'visitor16', 'attack - Q\nbreath - W\nforce - E', 16, background.group);
 
         // create rain
         background.rain = game.add.emitter(320, -450, 50);
