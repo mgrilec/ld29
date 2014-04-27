@@ -3,6 +3,7 @@ var player = {
     extraSpeed: 80,
     jumpSpeed: 140,
     stunned: false,
+    block: 0.15,
     
     audio: {},
     attack: {
@@ -44,6 +45,7 @@ var player = {
         
         player.audio.hit = game.add.audio('hit2', 0.3, false);
         player.audio.jump = game.add.audio('jump', 0.2, false);
+        player.audio.block = game.add.audio('block', 0.3, false);
         
         
         player.sprite.attack = function() {
@@ -134,16 +136,26 @@ var player = {
             setTimeout(function() { location.reload() }, 3000);
         });
         
-        player.sprite.hit = function() {
+        player.sprite.hit = function(dmg) {
             player.stunned = true;
             setTimeout(function() { player.stunned = false; }, 200);
+            
+            if (dmg > 0)
+            {
+                if (game.rnd.frac() > player.block) {
+                    player.sprite.damage(dmg);
+                    player.audio.hit.play();
+                }
+                else
+                    player.audio.block.play();
+            }
         }
             
         player.sprite.onEnemyCollision = function(p, e) {
             var angle = game.physics.arcade.angleBetween(p, e);
             player.sprite.body.velocity.x = -Math.cos(angle) * 200;
             player.sprite.body.velocity.y = -Math.sin(angle) * 50;
-            player.sprite.hit();            
+            player.sprite.hit(0);            
         };
         
     },

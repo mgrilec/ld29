@@ -92,8 +92,8 @@ var enemies = {
         sprite.audio.die = game.add.audio('die', 0.2, false);
         
         sprite.lastAttack = 0;
-        sprite.attackCooldown = 0.5;
-        sprite.attackRange = 20;
+        sprite.attackCooldown = 0.6;
+        sprite.attackRange = 15;
         sprite.attack = function() {
             var elapsed = game.time.totalElapsedSeconds() - sprite.lastAttack;
             if (elapsed < sprite.attackCooldown) {
@@ -101,13 +101,11 @@ var enemies = {
             }
             
             sprite.lastAttack = game.time.totalElapsedSeconds();
-            player.sprite.damage(5);
             if (player.sprite.x < sprite.x)
                 player.sprite.body.velocity.x = -150;
             else if (player.sprite.x > sprite.x)
                 player.sprite.body.velocity.x = 150;
-            player.sprite.hit();
-            player.audio.hit.play();
+            player.sprite.hit(5);
         };
         
         sprite.update = function() {

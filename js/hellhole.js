@@ -37,6 +37,7 @@ function preload() {
     game.load.audio('pickup', 'assets/sounds/Pickup_Coin5.wav', true);
     game.load.audio('die', 'assets/sounds/Hit_Hurt22.wav', true);
     game.load.audio('hit2', 'assets/sounds/Hit_Hurt23.wav', true);
+    game.load.audio('block', 'assets/sounds/Laser_Shoot4.wav', true); 
 }
 
 function create() {
