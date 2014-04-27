@@ -31,6 +31,12 @@ function preload() {
     player.preload();
     
     enemies.preload();
+    
+    game.load.audio('hit', 'assets/sounds/Hit_Hurt16.wav', true);
+    game.load.audio('jump', 'assets/sounds/Jump8.wav', true);
+    game.load.audio('pickup', 'assets/sounds/Pickup_Coin5.wav', true);
+    game.load.audio('die', 'assets/sounds/Hit_Hurt22.wav', true);
+    game.load.audio('hit2', 'assets/sounds/Hit_Hurt23.wav', true);
 }
 
 function create() {

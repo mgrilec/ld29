@@ -23,7 +23,7 @@ var background = {
         
         background.tutorialText = []
         background.tutorialText[0] = game.add.bitmapText(60, -460, 'visitor16', 'arrow left\narrow right\narrow up', 16, background.group);
-        background.tutorialText[1] = game.add.bitmapText(500, -70, 'visitor16', 'space', 16, background.group);
+        background.tutorialText[1] = game.add.bitmapText(500, -100, 'visitor16', 'attack - Q', 16, background.group);
 
         // create rain
         background.rain = game.add.emitter(320, -450, 50);

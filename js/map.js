@@ -40,6 +40,8 @@ var map = {
             var hole = game.add.sprite(i % 2 == 0 ? 100 : 700, ground.y, 'hole', 0, map.holes);
             hole.scale.set(i % 2 == 0 ? -2 : 2 , 4);
             
+            var floor = game.add.bitmapText(i % 2 == 0 ? 100 : 700, ground.y - 100, 'visitor16', (i - 1).toString());
+            
         };
             
         
@@ -47,7 +49,7 @@ var map = {
     
     update: function() {
         // check on enter level
-        var level = map.levels.getLevel(player.sprite.y);
+        var level = map.levels.getLevel(player.sprite.y + 100);
         if (level > map.levels.lastLevel) {
             map.levels.lastLevel = level;
             map.onPlayerEnterLevel.forEach(function(f) {

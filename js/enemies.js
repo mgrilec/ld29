@@ -18,16 +18,20 @@ var enemies = {
             
             var x = i % 2 == 0 ? 50 : 750;
             var y = map.levels.getHeight(i) - 50;
-            var vx = i % 2 == 0 ? 370 : -370;
             if (i == 0) {
                 x = 750;
                 y = map.levels.getHeight(i + 1) - 50;
-                vx = -370;
             }
             
-            var imp = enemies.imp(x, y);
-            imp.body.velocity.x = vx;
-            imp.body.velocity.y = -30;
+            var imps = 1 + Math.floor(i / 5) + Math.round(game.rnd.frac() * i);
+            imps = Math.min(imps, 20);
+            for (var e = 0; e < imps; e++)
+            {
+                setTimeout(function() {
+                    var imp = enemies.imp(x, y);
+                    enemies.spawn(imp, i);
+                }, game.rnd.frac() * 2000);
+            }
         });
     },
     
@@ -38,6 +42,17 @@ var enemies = {
     
     render: function() {
         
+    },
+    
+    spawn: function(e, l) {
+        
+        var vx = l % 2 == 0 ? 370 : -370;
+        if (l == 0) {
+            vx = -370;
+        }
+
+        e.body.velocity.x = vx + game.rnd.normal() * 10;
+        e.body.velocity.y = -30 + game.rnd.normal() * 10;
     },
     
     bull: function(x, y) {
@@ -72,6 +87,10 @@ var enemies = {
         setTimeout(function() { sprite.stunned = false }, 500);
         sprite.dying = false;
         
+        sprite.audio = {};
+        sprite.audio.hit = game.add.audio('hit', 0.2, false);
+        sprite.audio.die = game.add.audio('die', 0.2, false);
+        
         sprite.lastAttack = 0;
         sprite.attackCooldown = 0.5;
         sprite.attackRange = 20;
@@ -82,7 +101,13 @@ var enemies = {
             }
             
             sprite.lastAttack = game.time.totalElapsedSeconds();
-            player.sprite.damage(3);
+            player.sprite.damage(5);
+            if (player.sprite.x < sprite.x)
+                player.sprite.body.velocity.x = -150;
+            else if (player.sprite.x > sprite.x)
+                player.sprite.body.velocity.x = 150;
+            player.sprite.hit();
+            player.audio.hit.play();
         };
         
         sprite.update = function() {
@@ -100,7 +125,7 @@ var enemies = {
                 sprite.body.velocity.x = 140;
             }
             
-            if (Math.abs(player.sprite.x - sprite.x) < 50 && sprite.body.touching.down && game.rnd.normal() > 0.95)
+            if (Math.abs(player.sprite.x - sprite.x) < 50 && sprite.body.touching.down && game.rnd.normal() > 0.98)
                 sprite.body.velocity.y = -150;
             
             // attack
@@ -123,12 +148,14 @@ var enemies = {
         sprite.hit = function() {
             sprite.stunned = true;
             setTimeout(function() { sprite.stunned = false; }, 300);
+            sprite.audio.hit.play();
         }
         
         sprite.events.onKilled.add(function() {
             if (sprite.dying)
                 return;
             
+            sprite.audio.die.play();
             sprite.alive = true;
             sprite.exists = true;
             sprite.visible = true;

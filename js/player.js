@@ -4,6 +4,7 @@ var player = {
     jumpSpeed: 140,
     stunned: false,
     
+    audio: {},
     attack: {
         inAttack: false,
         last: 0,
@@ -41,6 +42,9 @@ var player = {
         // healthbar
         player.maxHealth = player.sprite.health = 100;
         
+        player.audio.hit = game.add.audio('hit2', 0.3, false);
+        player.audio.jump = game.add.audio('jump', 0.2, false);
+        
         
         player.sprite.attack = function() {
             
@@ -56,9 +60,11 @@ var player = {
             setTimeout(function() { player.attack.inAttack = false; }, 100);
             
             
-            // find closest enemy
-            var closest;
+            // hit enemies in range
             enemies.group.forEach(function(enemy) {
+                if (!enemy.alive)
+                    return;
+                
                 var toEnemy = new Phaser.Point(enemy.x - player.sprite.x, enemy.y - player.sprite.y);
                 var distance = game.physics.arcade.distanceBetween(enemy, player.sprite);
                 
@@ -104,10 +110,12 @@ var player = {
                     player.sprite.body.velocity.x = player.moveSpeed;
             }
             
-            if (cursors.up.isDown && player.sprite.body.touching.down && !player.stunned)
+            if (cursors.up.isDown && player.sprite.body.touching.down && !player.stunned) {
                 player.sprite.body.velocity.y = -player.jumpSpeed;
+                player.audio.jump.play();
+            }
             
-            if (game.input.keyboard.justPressed(Phaser.Keyboard.SPACEBAR)) {
+            if (game.input.keyboard.justPressed(Phaser.Keyboard.Q)) {
                 player.sprite.attack();
             }
             
@@ -121,14 +129,19 @@ var player = {
 
         };
         
+        player.sprite.events.onKilled.add(function() {
+            game.add.bitmapText(200, 200, 'visitor32', 'You died!', 64).fixedToCamera = true;;
+            setTimeout(function() { location.reload() }, 3000);
+        });
+        
         player.sprite.hit = function() {
             player.stunned = true;
-            setTimeout(function() { player.stunned = false; }, 100);
+            setTimeout(function() { player.stunned = false; }, 200);
         }
             
         player.sprite.onEnemyCollision = function(p, e) {
             var angle = game.physics.arcade.angleBetween(p, e);
-            player.sprite.body.velocity.x = -Math.cos(angle) * 100;
+            player.sprite.body.velocity.x = -Math.cos(angle) * 200;
             player.sprite.body.velocity.y = -Math.sin(angle) * 50;
             player.sprite.hit();            
         };
