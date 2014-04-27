@@ -23,7 +23,13 @@ var background = {
         background.tutorialText = []
         background.tutorialText[0] = game.add.bitmapText(60, -460, 'visitor16', 'arrow left\narrow right\narrow up', 16, background.group);
         background.tutorialText[1] = game.add.bitmapText(400, -100, 'visitor16', 'attack - Q\nbreath - W\nforce - E', 16, background.group);
-        background.tutorialText[2] = game.add.bitmapText(400, 9500, 'visitor32', 'You win!\n Thanks for playing!', 32, background.group);
+        background.tutorialText[2] = game.add.bitmapText(200, 8400, 'visitor32', 'You win!\n Thanks for playing!', 64, background.group);
+        background.tutorialText[2].update = function() {
+            if (enemies.group.countLiving() > 0)
+                background.tutorialText[2].text = "Kill them all to win!";
+            else
+                background.tutorialText[2].text= 'You win!\n Thanks for playing!';
+        }
 
         // create rain
         background.rain = game.add.emitter(320, -450, 50);

@@ -43,7 +43,7 @@ var enemies = {
                 bulls = 20;
             } else if (i == 12) {
                 imps = 20;
-                bats = 30;
+                bats = 20;
                 bulls = 20;
             }
             

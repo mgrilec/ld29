@@ -19,12 +19,13 @@ var map = {
     },
         
     preload: function() {
-    
+        
     },
     
     create: function() {
         map.grounds = game.add.group();
         map.holes = game.add.group();
+        map.boxes = game.add.group();
         
         for (var i = 1; i < 12; i++) {
             if (i == 1)
@@ -42,6 +43,10 @@ var map = {
             
             var floor = game.add.bitmapText(i % 2 == 0 ? 100 : 700, ground.y - 100, 'visitor16', (i - 1).toString());
             
+            var box = game.add.sprite(i % 2 == 0 ? 30: 740, ground.y, 'box', 0, map.boxes);
+            game.physics.enable(box, Phaser.Physics.ARCADE);
+            box.body.moves = false;
+            box.body.immovable = true;
         };
             
         

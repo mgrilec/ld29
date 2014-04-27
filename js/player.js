@@ -195,6 +195,7 @@ var player = {
             game.physics.arcade.collide(player.group, ground.ground);
             game.physics.arcade.collide(player.group, enemies.group, player.sprite.onEnemyCollision);
             game.physics.arcade.collide(player.group, map.grounds);
+            game.physics.arcade.overlap(player.group, map.boxes, player.sprite.onBoxCollision);
             
             // controls
             var cursors = game.input.keyboard.createCursorKeys();
@@ -237,7 +238,7 @@ var player = {
         };
         
         player.sprite.events.onKilled.add(function() {
-            game.add.bitmapText(200, 200, 'visitor32', 'You died!', 64).fixedToCamera = true;;
+            game.add.bitmapText(200, 200, 'visitor32', 'You died!', 64).fixedToCamera = true;
             setTimeout(function() { location.reload() }, 3000);
         });
         
@@ -261,6 +262,55 @@ var player = {
             player.sprite.body.velocity.x = -Math.cos(angle) * 200;
             player.sprite.body.velocity.y = -Math.sin(angle) * 50;
             player.sprite.hit(0);            
+        };
+        
+        player.sprite.onBoxCollision = function(p, b) {
+            b.kill();
+            
+            var spawn = function(text) {
+                var t = game.add.bitmapText(20, 500, 'visitor32', text, 64);
+                t.fixedToCamera = true;
+                setTimeout(function() { t.destroy(); }, 3000);
+            }
+            
+            // random powerup
+            var r = game.rnd.integerInRange(0, 10);
+            if (r == 0) {
+                player.sprite.health += 40;
+                spawn("health up");
+            } else if (r == 1) {
+                player.attack.damage += 10;
+                spawn("attack damage up");
+            } else if (r == 2) {
+                player.sprite.block += 0.15;
+                spawn("block up");
+            } else if (r == 3) {
+                player.breath.cooldown *= 0.6;
+                spawn("breath cooldown");
+            } else if (r == 4) {
+                player.force.cooldown *= 0.6;
+                spawn("force cooldown");
+            } else if (r == 5) {
+                player.attack.cooldown *= 0.8;
+                spawn("attack cooldown");
+            } else if (r == 6) {
+                player.breath.damage += 10;
+                spawn("breath damage up");
+            } else if (r == 7) {
+                player.moveSpeed += 40;
+                spawn("move faster");
+            } else if (r == 8) {
+                player.jumpSpeed += 60;
+                spawn("jump higher");
+            } else if (r == 9) {
+                player.attack.range += 40;
+                spawn("attack range up");
+            } else if (r == 10) {
+                player.attack.damage += 10;
+                player.breath.damage += 10;
+                player.force.damage += 10;
+                spawn("all damage up");
+            }
         };
         
     },
