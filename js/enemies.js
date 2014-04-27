@@ -42,9 +42,8 @@ var enemies = {
             } else if (i == 11) {
                 bulls = 20;
             } else if (i == 12) {
-                imps = 20;
-                bats = 20;
-                bulls = 20;
+                imps = 30;
+                bulls = 10;
             }
             
             var x = i % 2 == 0 ? 50 : 750;

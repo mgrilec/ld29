@@ -47,6 +47,15 @@ var map = {
             game.physics.enable(box, Phaser.Physics.ARCADE);
             box.body.moves = false;
             box.body.immovable = true;
+            
+            var fires = game.rnd.integerInRange(3, 10);
+            for (var f = 0; f < fires; f++) {
+                var fire = game.add.sprite(150 + game.rnd.frac() * 500, map.levels.getHeight(i), 'fire');
+                fire.animations.add('burn', [0, 1], 10, true);
+                fire.animations.play('burn');
+                fire.anchor.set(0.5, 1);
+                fire.scale.set(game.rnd.normal() > 0 ? 2 + game.rnd.normal() : -2 + game.rnd.normal()  , 1.5 + game.rnd.frac() * 2);
+            }
         };
             
         
