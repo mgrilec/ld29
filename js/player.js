@@ -14,9 +14,17 @@ var player = {
         damage: 10,
     },
     
+    breath: {
+        last: 0,
+        cooldown: 2,
+        range: 120,
+        damage: 15,
+    },
+    
     preload: function() {
         // player
         game.load.spritesheet('player', 'assets/knight.png', 16, 16);
+        game.load.image('breath', 'assets/breath.png', 32, 32);
     },
     
     create: function() {
@@ -67,10 +75,7 @@ var player = {
                 if (!enemy.alive)
                     return;
                 
-                var toEnemy = new Phaser.Point(enemy.x - player.sprite.x, enemy.y - player.sprite.y);
-                var distance = game.physics.arcade.distanceBetween(enemy, player.sprite);
-                
-                
+                var toEnemy = new Phaser.Point(enemy.x - player.sprite.x, enemy.y - player.sprite.y);        
                 if (toEnemy.x < 0 && player.sprite.scale.x < 0 && toEnemy.x > -player.attack.range && Math.abs(toEnemy.y) < 8) {
                     enemy.damage(player.attack.damage);
                     enemy.hit();
@@ -84,7 +89,45 @@ var player = {
                 
                     
             });
-        }
+        };
+        
+        player.sprite.breath = function() {
+            
+            // check cooldown
+            var elapsed = game.time.totalElapsedSeconds() - player.breath.last;
+            if (elapsed < player.breath.cooldown) {
+                return;
+            }
+            
+            player.breath.last = game.time.totalElapsedSeconds();
+            
+            // spawn breath
+            var breath = game.add.sprite(player.sprite.x + player.sprite.scale.x * 40, player.sprite.y - 32, 'breath');
+            breath.anchor.set(0.5, 0.5);
+            breath.scale.x = -player.sprite.scale.x * 2;
+            breath.scale.y = player.sprite.scale.y * 2;
+            breath.update = function() {
+                breath.alpha -= 0.05;
+                if (breath.alpha < 0)
+                    breath.kill();
+            };
+            
+            // hit enemies in range
+            enemies.group.forEach(function(enemy) {
+                if (!enemy.alive)
+                    return;
+                
+                var toEnemy = new Phaser.Point(enemy.x - player.sprite.x, enemy.y - player.sprite.y);
+                if (toEnemy.x < 0 && player.sprite.scale.x < 0 && toEnemy.x > -player.breath.range && Math.abs(toEnemy.y) < 64) {
+                    enemy.damage(player.breath.damage);
+                    enemy.hit();
+                }
+                else if (toEnemy.x > 0 && player.sprite.scale.x > 0 && toEnemy.x < player.breath.range && Math.abs(toEnemy.y) < 64) {
+                    enemy.damage(player.breath.damage);
+                    enemy.hit();
+                }
+            });
+        };
         
         // update
         player.sprite.update = function() {
@@ -119,6 +162,10 @@ var player = {
             
             if (game.input.keyboard.justPressed(Phaser.Keyboard.Q)) {
                 player.sprite.attack();
+            }
+            
+            if (game.input.keyboard.justPressed(Phaser.Keyboard.W)) {
+                player.sprite.breath();
             }
             
             // animation
