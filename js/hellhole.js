@@ -90,6 +90,9 @@ function create() {
     castle.main.scale = new Phaser.Point(4, 4);
     castle.main.body.setSize(43, 104, 0, 12);
     
+    // create gui
+    gui.create();
+    
     // setup stage
     game.stage.smoothed = false;
     game.stage.backgroundColor = '#FFFFFF';

@@ -1,14 +1,15 @@
 var player = {
-    moveSpeed: 40,
+    moveSpeed: 120,
     extraSpeed: 80,
-    jumpSpeed: 120,
+    jumpSpeed: 140,
+    stunned: false,
     
     attack: {
         inAttack: false,
         last: 0,
         cooldown: 0.4,
         range: 30,
-        damage: 20,
+        damage: 10,
     },
     
     preload: function() {
@@ -39,10 +40,7 @@ var player = {
         
         // healthbar
         player.maxHealth = player.sprite.health = 100;
-        player.healthbar = game.add.sprite(795, 5, 'healthbar');
-        player.healthbar.fixedToCamera = true;
-        player.healthbar.anchor.set(1, 0);
-        player.healthbar.scale.set(32, 8);
+        
         
         player.sprite.attack = function() {
             
@@ -64,18 +62,18 @@ var player = {
                 var toEnemy = new Phaser.Point(enemy.x - player.sprite.x, enemy.y - player.sprite.y);
                 var distance = game.physics.arcade.distanceBetween(enemy, player.sprite);
                 
-                if (distance < player.attack.range) {
-                    if (toEnemy.x < 0 && player.sprite.scale.x < 0) {
-                        enemy.damage(player.attack.damage);
-                        enemy.hit();
-                        enemy.body.velocity.x = -100;
-                    }
-                    else if (toEnemy.x > 0 && player.sprite.scale.x > 0) {
-                        enemy.damage(player.attack.damage);
-                        enemy.hit();
-                        enemy.body.velocity.x = 100;
-                    }
+                
+                if (toEnemy.x < 0 && player.sprite.scale.x < 0 && toEnemy.x > -player.attack.range && Math.abs(toEnemy.y) < 8) {
+                    enemy.damage(player.attack.damage);
+                    enemy.hit();
+                    enemy.body.velocity.x = -200;
                 }
+                else if (toEnemy.x > 0 && player.sprite.scale.x > 0 && toEnemy.x < player.attack.range && Math.abs(toEnemy.y) < 8) {
+                    enemy.damage(player.attack.damage);
+                    enemy.hit();
+                    enemy.body.velocity.x = 200;
+                }
+                
                     
             });
         }
@@ -96,27 +94,22 @@ var player = {
             // controls
             var cursors = game.input.keyboard.createCursorKeys();
             if (cursors.left.isDown) {
-                player.sprite.body.velocity.x = -player.moveSpeed;
-                if (enemies.group.countLiving() == 0)
-                    player.sprite.body.velocity.x -= player.extraSpeed;
+                player.sprite.scale.x = -2;
+                if (!player.stunned)
+                    player.sprite.body.velocity.x = -player.moveSpeed;
             }
             else if (cursors.right.isDown) {
-                player.sprite.body.velocity.x = player.moveSpeed;
-                if (enemies.group.countLiving() == 0)
-                    player.sprite.body.velocity.x += player.extraSpeed;
+                player.sprite.scale.x = 2;
+                if (!player.stunned)
+                    player.sprite.body.velocity.x = player.moveSpeed;
             }
+            
+            if (cursors.up.isDown && player.sprite.body.touching.down && !player.stunned)
+                player.sprite.body.velocity.y = -player.jumpSpeed;
             
             if (game.input.keyboard.justPressed(Phaser.Keyboard.SPACEBAR)) {
                 player.sprite.attack();
             }
-            
-            var level = map.levels.getLevel(player.sprite.y);
-            if (level == 0 || level == 1)
-                player.sprite.scale.x = 2;
-            else if (level % 2 == 0)
-                player.sprite.scale.x = -2;
-            else
-                player.sprite.scale.x = 2;
             
             // animation
             if (Math.abs(player.sprite.body.velocity.x) > 5 && player.sprite.body.touching.down && !player.attack.inAttack)
@@ -126,14 +119,18 @@ var player = {
             else if (player.sprite.body.touching.down && !player.attack.inAttack)
                 player.sprite.animations.play('idle');
 
-            player.healthbar.scale.set(player.sprite.health / player.maxHealth * 32, 8);
-            player.healthbar.bringToTop();
         };
+        
+        player.sprite.hit = function() {
+            player.stunned = true;
+            setTimeout(function() { player.stunned = false; }, 100);
+        }
             
         player.sprite.onEnemyCollision = function(p, e) {
             var angle = game.physics.arcade.angleBetween(p, e);
-            player.sprite.body.velocity.x = -Math.cos(angle) * 150;
-            player.sprite.body.velocity.y = -Math.sin(angle) * 100;
+            player.sprite.body.velocity.x = -Math.cos(angle) * 100;
+            player.sprite.body.velocity.y = -Math.sin(angle) * 50;
+            player.sprite.hit();            
         };
         
     },

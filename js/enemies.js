@@ -63,13 +63,27 @@ var enemies = {
         sprite.body.setSize(5, 10, 0, 0);
         
         // healthbar
-        sprite.health = sprite.maxHealth = 50;
+        sprite.health = sprite.maxHealth = 30;
         sprite.healthbar = game.add.sprite(x, y - 20, 'healthbar');
         sprite.healthbar.anchor.set(0.5, 1);
         sprite.healthbar.scale.set(2);
         
-        sprite.stunned = false;
+        sprite.stunned = true;
+        setTimeout(function() { sprite.stunned = false }, 500);
         sprite.dying = false;
+        
+        sprite.lastAttack = 0;
+        sprite.attackCooldown = 0.5;
+        sprite.attackRange = 20;
+        sprite.attack = function() {
+            var elapsed = game.time.totalElapsedSeconds() - sprite.lastAttack;
+            if (elapsed < sprite.attackCooldown) {
+                return;
+            }
+            
+            sprite.lastAttack = game.time.totalElapsedSeconds();
+            player.sprite.damage(3);
+        };
         
         sprite.update = function() {
             if (sprite.dying) {
@@ -77,15 +91,21 @@ var enemies = {
             }
                 
             // move
-            if (player.sprite.x < sprite.x - 5 && !sprite.stunned) {
+            if (player.sprite.x < sprite.x - 10 && !sprite.stunned) {
                 sprite.scale.x = -2;   
-                if (sprite.body.touching.down)
-                    sprite.body.velocity.x = -70;
+                sprite.body.velocity.x = -140;
             }
-            else if (player.sprite.x > sprite.x + 5 && !sprite.stunned) {
+            else if (player.sprite.x > sprite.x + 10 && !sprite.stunned) {
                 sprite.scale.x = 2;
-                if (sprite.body.touching.down)
-                    sprite.body.velocity.x = 70;
+                sprite.body.velocity.x = 140;
+            }
+            
+            if (Math.abs(player.sprite.x - sprite.x) < 50 && sprite.body.touching.down && game.rnd.normal() > 0.95)
+                sprite.body.velocity.y = -150;
+            
+            // attack
+            if (Math.abs(player.sprite.x - sprite.x) < sprite.attackRange && Math.abs(player.sprite.y - sprite.y) < 8) {
+                sprite.attack();
             }
             
             // healthbar
