@@ -26,7 +26,7 @@ function preload() {
     game.load.spritesheet('hell_sign', 'assets/hell_sign.png', 24, 32);
     game.load.image('rain', 'assets/rain.png');
     
-    game.load.image('healtbar', 'assets/healthbar.png');
+    game.load.image('healthbar', 'assets/healthbar.png');
     
     player.preload();
     
@@ -63,6 +63,9 @@ function create() {
     ground.hole = game.add.sprite(600, 0, 'hole', 0, ground.group);
     ground.hole.scale.set(2, 4);
     
+    // create map
+    map.create();
+    
     // create player
     player.create();
     
@@ -86,9 +89,6 @@ function create() {
     castle.main.body.immovable = true;
     castle.main.scale = new Phaser.Point(4, 4);
     castle.main.body.setSize(43, 104, 0, 12);
-    
-    // create map
-    map.create();
     
     // setup stage
     game.stage.smoothed = false;

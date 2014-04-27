@@ -7,7 +7,7 @@ var player = {
         inAttack: false,
         last: 0,
         cooldown: 0.4,
-        range: 25,
+        range: 30,
         damage: 20,
     },
     
@@ -36,6 +36,13 @@ var player = {
         player.sprite.body.drag.set(300, 10);
         player.sprite.body.mass = 200;
         player.sprite.body.collideWorldBounds = true;
+        
+        // healthbar
+        player.maxHealth = player.sprite.health = 100;
+        player.healthbar = game.add.sprite(795, 5, 'healthbar');
+        player.healthbar.fixedToCamera = true;
+        player.healthbar.anchor.set(1, 0);
+        player.healthbar.scale.set(32, 8);
         
         player.sprite.attack = function() {
             
@@ -92,22 +99,24 @@ var player = {
                 player.sprite.body.velocity.x = -player.moveSpeed;
                 if (enemies.group.countLiving() == 0)
                     player.sprite.body.velocity.x -= player.extraSpeed;
-                player.sprite.scale.x = -2;
             }
             else if (cursors.right.isDown) {
                 player.sprite.body.velocity.x = player.moveSpeed;
                 if (enemies.group.countLiving() == 0)
                     player.sprite.body.velocity.x += player.extraSpeed;
-                player.sprite.scale.x = 2;
             }
             
             if (game.input.keyboard.justPressed(Phaser.Keyboard.SPACEBAR)) {
                 player.sprite.attack();
             }
-
-            if (cursors.up.isDown && player.sprite.body.touching.down) {
-                player.sprite.body.velocity.y -= player.jumpSpeed;
-            }
+            
+            var level = map.levels.getLevel(player.sprite.y);
+            if (level == 0 || level == 1)
+                player.sprite.scale.x = 2;
+            else if (level % 2 == 0)
+                player.sprite.scale.x = -2;
+            else
+                player.sprite.scale.x = 2;
             
             // animation
             if (Math.abs(player.sprite.body.velocity.x) > 5 && player.sprite.body.touching.down && !player.attack.inAttack)
@@ -117,7 +126,8 @@ var player = {
             else if (player.sprite.body.touching.down && !player.attack.inAttack)
                 player.sprite.animations.play('idle');
 
-            
+            player.healthbar.scale.set(player.sprite.health / player.maxHealth * 32, 8);
+            player.healthbar.bringToTop();
         };
             
         player.sprite.onEnemyCollision = function(p, e) {

@@ -13,21 +13,21 @@ var enemies = {
         
         
         map.onPlayerEnterLevel.push(function(i) {
-            var x = i % 2 == 0 ? 750 : 50;
+            if (i == 1)
+                return;
+            
+            var x = i % 2 == 0 ? 50 : 750;
             var y = map.levels.getHeight(i) - 50;
-            var vx = i % 2 == 0 ? -370 : 370;
+            var vx = i % 2 == 0 ? 370 : -370;
+            if (i == 0) {
+                x = 750;
+                y = map.levels.getHeight(i + 1) - 50;
+                vx = -370;
+            }
             
             var imp = enemies.imp(x, y);
             imp.body.velocity.x = vx;
             imp.body.velocity.y = -30;
-            
-            imp = enemies.imp(x, y);
-            imp.body.velocity.x = vx - 5;
-            imp.body.velocity.y = -25;
-            
-            imp = enemies.imp(x, y);
-            imp.body.velocity.x = vx + 5;
-            imp.body.velocity.y = -35;
         });
     },
     
@@ -64,7 +64,7 @@ var enemies = {
         
         // healthbar
         sprite.health = sprite.maxHealth = 50;
-        sprite.healthbar = game.add.sprite(x, y - 20, 'healtbar');
+        sprite.healthbar = game.add.sprite(x, y - 20, 'healthbar');
         sprite.healthbar.anchor.set(0.5, 1);
         sprite.healthbar.scale.set(2);
         
