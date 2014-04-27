@@ -26,7 +26,7 @@ var map = {
         map.grounds = game.add.group();
         map.holes = game.add.group();
         
-        for (var i = 1; i < 49; i++) {
+        for (var i = 1; i < 12; i++) {
             if (i == 1)
                 continue;
             

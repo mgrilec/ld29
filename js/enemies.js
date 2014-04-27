@@ -14,8 +14,38 @@ var enemies = {
         
         
         map.onPlayerEnterLevel.push(function(i) {
-            if (i == 1)
-                return;
+            
+            var imps = 0, bulls = 0, bats = 0;
+            if (i == 1) {
+                imps = 3;
+            }
+            else if (i == 2) {
+                imps = 5;
+            } else if (i == 3) {
+                imps = 10;
+            } else if (i == 4) {
+                imps = 10;
+            } else if (i == 5) {
+                bulls = 4;
+            } else if (i == 6) {
+                imps = 10;
+                bulls = 4;
+            } else if (i == 7) {
+                bulls = 10;
+            } else if (i == 8) {
+                bats = 10;
+            } else if (i == 9) {
+                imps = 30;
+            } else if (i == 10) {
+                bats = 10;
+                bulls = 10;
+            } else if (i == 11) {
+                bulls = 20;
+            } else if (i == 12) {
+                imps = 20;
+                bats = 30;
+                bulls = 20;
+            }
             
             var x = i % 2 == 0 ? 50 : 750;
             var y = map.levels.getHeight(i) - 50;
@@ -24,7 +54,6 @@ var enemies = {
                 y = map.levels.getHeight(i + 1) - 50;
             }
             
-            var imps = 1 + Math.floor(i / 5) + Math.round(game.rnd.frac() * i);
             imps = Math.min(imps, 20);
             for (var e = 0; e < imps; e++)
             {
@@ -34,7 +63,6 @@ var enemies = {
                 }, game.rnd.frac() * 2000);
             }
             
-            var bulls = Math.floor(i / 3) + Math.round(game.rnd.frac() * i / 3);
             for (var e = 0; e < bulls; e++)
             {
                 setTimeout(function() {
@@ -43,7 +71,6 @@ var enemies = {
                 }, game.rnd.frac() * 3000);
             }
             
-            var bats = Math.floor(i / 5) + Math.round(game.rnd.frac() * i / 5);
             for (var e = 0; e < bats; e++)
             {
                 setTimeout(function() {

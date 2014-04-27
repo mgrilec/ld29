@@ -33,6 +33,9 @@ var player = {
         game.load.spritesheet('player', 'assets/knight.png', 16, 16);
         game.load.image('breath', 'assets/breath.png');
         game.load.image('force', 'assets/force.png');
+        
+        game.load.audio('breathfx', 'assets/sounds/Explosion21.wav', true);
+        game.load.audio('forcefx', 'assets/sounds/Powerup9.wav', true);
     },
     
     create: function() {
@@ -62,6 +65,8 @@ var player = {
         player.audio.hit = game.add.audio('hit2', 0.3, false);
         player.audio.jump = game.add.audio('jump', 0.2, false);
         player.audio.block = game.add.audio('block', 0.3, false);
+        player.audio.breath = game.add.audio('breathfx', 0.3, false);
+        player.audio.force = game.add.audio('forcefx', 0.3, false);
         
         
         player.sprite.attack = function() {
@@ -108,6 +113,7 @@ var player = {
             }
             
             player.breath.last = game.time.totalElapsedSeconds();
+            player.audio.breath.play();
             
             // spawn breath
             var breath = game.add.sprite(player.sprite.x + player.sprite.scale.x * 40, player.sprite.y - 32, 'breath');
@@ -115,7 +121,7 @@ var player = {
             breath.scale.x = -player.sprite.scale.x * 2;
             breath.scale.y = player.sprite.scale.y * 2;
             breath.update = function() {
-                breath.alpha -= 0.01;
+                breath.alpha -= 0.05;
                 if (breath.alpha < 0)
                     breath.kill();
             };
@@ -146,6 +152,7 @@ var player = {
             }
             
             player.force.last = game.time.totalElapsedSeconds();
+            player.audio.force.play();
             
             // spawn force
             var force = game.add.sprite(player.sprite.x, player.sprite.y - 16, 'force');
@@ -165,8 +172,8 @@ var player = {
                 var angle = game.physics.arcade.angleBetween(player.sprite, enemy);
                 if (game.physics.arcade.distanceBetween(player.sprite, enemy) < player.force.range) {
                     // push enemy
-                    enemy.body.velocity.x = Math.cos(angle) * 1000;
-                    enemy.body.velocity.y = Math.sin(angle) * 600;
+                    enemy.body.velocity.x = Math.cos(angle) * 500;
+                    enemy.body.velocity.y = Math.sin(angle) * 300;
                     
                     // hit enemy
                     enemy.damage(player.force.damage);
